@@ -1,4 +1,5 @@
-﻿; --------------------------------------------------------------------
+; --------------------------------------------------------------------
+; - 2021-02-02 無変換-Arrow → C-Arrow
 ; - 2021-02-01 無変換-BS → C-BS ; 無変換-Del → C-Del
 ; - 2021-02-01 カタカナ ひらがな → 半角/全角
 ; - 2021-01-31 S-無変換-c, S-無変換-x for Explorer
@@ -570,6 +571,15 @@ DoTTT(backward = "+{Home}") {
 ~vk1D & vkE2::Send,{Blind}^\
 
 ~vk1D & Del::Send,{Blind}^{Del}
+
+~vk1D & Left::Send,{Blind}^{Left}
+~vk1D & Right::Send,{Blind}^{Right}
+~vk1D & Up::Send,{Blind}^{Up}
+~vk1D & Down::Send,{Blind}^{Down}
+; ~vk1D & Home::Send,{Blind}^{Home}
+; ~vk1D & End::Send,{Blind}^{End}
+; ~vk1D & PgUp::Send,{Blind}^{PgUp}
+; ~vk1D & PgDn::Send,{Blind}^{PgDn}
 
 ; 無変換-click → C-click
 ~vk1D & LButton::Send,{Blind}^{LButton}
