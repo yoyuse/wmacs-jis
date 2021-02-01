@@ -1,4 +1,5 @@
 ﻿; --------------------------------------------------------------------
+; - 2021-02-01 無変換-BS → C-BS ; 無変換-Del → C-Del
 ; - 2021-02-01 カタカナ ひらがな → 半角/全角
 ; - 2021-01-31 S-無変換-c, S-無変換-x for Explorer
 ; - 2021-01-30 無変換-click → C-Click
@@ -514,7 +515,7 @@ DoTTT(backward = "+{Home}") {
 ~vk1D & vkBD::Send,{Blind}{F11}
 ~vk1D & vkDE::Send,{Blind}{F12}
 ~vk1D & vkDC::Send,{Blind}^n
-~vk1D & BS::Send,{Blind}{Del}
+~vk1D & BS::Send,{Blind}^{BS}
 ~vk1D & Tab::Send,{Blind}^{Tab}
 ~vk1D & q::Send,{Blind}^q
 ~vk1D & w::Send,{Blind}^w
@@ -567,6 +568,8 @@ DoTTT(backward = "+{Home}") {
 ~vk1D & vkBE::Send,{Blind}^{End}
 ~vk1D & vkBF::Send,{Blind}^a
 ~vk1D & vkE2::Send,{Blind}^\
+
+~vk1D & Del::Send,{Blind}^{Del}
 
 ; 無変換-click → C-click
 ~vk1D & LButton::Send,{Blind}^{LButton}
@@ -634,8 +637,7 @@ DoTTT(backward = "+{Home}") {
 ~vk1C & vkBF::Send,{Blind}^{/}
 ~vk1C & vkE2::Send,{Blind}^\
 
-~vk1C & ,::send,{blind}^,
-~vk1C & .::send,{blind}^.
+~vk1C & Del::Send,{Blind}^{Del}
 
 ; 英数
 ; --------------------------------------------------------------------
