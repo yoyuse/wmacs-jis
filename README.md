@@ -29,3 +29,4 @@ wmacs-jis 配列は、JIS キーボード上に US 配列を実現するとと�
 | `無変換-j` | [ttt](https://github.com/yoyuse/ttt) 変換 | TT-code 日本語入力 |
 | `無変換-`*key* | `C-`*key* | その他の文字キー |
 | `変換`-*key* | `C`-*key* | |
+| `カタカナひらがな` | `半角/全角` | |

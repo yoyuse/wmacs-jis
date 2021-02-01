@@ -1,4 +1,5 @@
 ﻿; --------------------------------------------------------------------
+; - 2021-02-01 カタカナ ひらがな → 半角/全角
 ; - 2021-01-31 S-無変換-c, S-無変換-x for Explorer
 ; - 2021-01-30 無変換-click → C-Click
 ; - 2021-01-30 %A_LineFile%\..\wmacs-jis-ttt.ini
@@ -570,7 +571,7 @@ DoTTT(backward = "+{Home}") {
 ; 無変換-click → C-click
 ~vk1D & LButton::Send,{Blind}^{LButton}
 ; XXX: not implemented for double click, drag etc.
- 
+
 ; 変換
 ; --------------------------------------------------------------------
 
@@ -643,5 +644,8 @@ DoTTT(backward = "+{Home}") {
 
 ; disable 英数
 vkF0::Return
+
+; カタカナ ひらがな → 半角/全角
+vkF2::Send,{vkF3}
 
 #If
