@@ -1,4 +1,5 @@
 ﻿; --------------------------------------------------------------------
+; - 2021-02-02 SendCase(), SendQuote(), SendUnquote()
 ; - 2021-02-02 無変換-q → QuotedInsert()
 ; - 2021-02-02 無変換-Arrow → C-Arrow
 ; - 2021-02-01 無変換-BS → C-BS ; 無変換-Del → C-Del
@@ -29,7 +30,7 @@ SetWorkingDir %A_ScriptDir%
 
 ; XXX: wmacs-jis.ico
 icon = %A_LineFile%\..\wmacs-jis.ico
-if FileExist(icon) {
+If FileExist(icon) {
     Menu, Tray, Icon, %icon%
 }
 
@@ -120,13 +121,11 @@ ParentControlIsOfClass(Class) {
 SendDateStampLong() {
     FormatTime,TimeString,,yyyy-MM-dd
     Send,%TimeString%
-    Return
 }
 
 SendDateStampShort() {
     FormatTime,TimeString,,yyMMdd
     Send,%TimeString%
-    Return
 }
 
 Return
@@ -159,13 +158,7 @@ $vk1C::
 ; 無変換を押し続けている限りリピートせず待機
 $vk1D::
     startTime := A_TickCount
-    If (C_q = 1) {
-        Send,{CtrlDown}
-    }
     KeyWait, vk1D
-    If (C_q = 1) {
-        Send,{CtrlUp}
-    }
     keyPressDuration := A_TickCount - startTime
     ; 無変換を押している間に他のホットキーが発動した場合は入力しない
     ; 無変換を長押ししていた場合も入力しない
@@ -181,9 +174,9 @@ $vk1D::
 OnClipboardChange:
     global no_copy_ToolTip
     If (no_copy_ToolTip = 1) {
-    ToolTip
-    SetTimer, RemoveToolTip, 1000
-    Return
+        ToolTip
+        SetTimer, RemoveToolTip, 1000
+        Return
     }
     if (A_EventInfo = 1) {
         ; long text
@@ -193,11 +186,11 @@ OnClipboardChange:
             str := SubStr(Clipboard, 1, maxLength)
             ToolTip テキストをコピーしました`n%str%...`n(%length% 文字)
         } else {
-        ; short text
+            ; short text
             ToolTip テキストをコピーしました`n%Clipboard%
         }
     } else if (A_EventInfo = 2) {
-    ; non text
+        ; non text
         ToolTip テキストでないものをコピーしました
     }
     SetTimer, RemoveToolTip, 1500
@@ -231,7 +224,6 @@ CopyFileName() {
     }
     ;;
     Clipboard := names
-    Return
 }
 
 CopyFilePath() {
@@ -241,8 +233,6 @@ CopyFilePath() {
     ;;
     names := Clipboard
     Clipboard := names
-    ;;
-    Return
 }
 
 +^c::CopyFileName()
@@ -385,161 +375,122 @@ DoTTT(backward = "+{Home}") {
 ; 104 on 109
 ; --------------------------------------------------------------------
 
-#If (C_q = 0)
+; #If (C_q = 0)
 
-+vk32::Send,{@}
-+vk36::Send,{^}
-+vk37::Send,{&}
-+vk38::Send,{*}
-+vk39::Send,{(}
-+vk30::Send,{)}
-+vkBD::Send,{_}
- vkDE::Send,{=}
-+vkDE::Send,{+}
-;  vkC0::Send,{[}
-; +vkC0::Send,{{}
-;  vkDB::Send,{]}
-; +vkDB::Send,{}}
-*vkC0::Send,{Blind}{[}
-*vkDB::Send,{Blind}{]}
-+vkBB::Send,{:}
- vkBA::Send,{'}
-+vkBA::Send,{"}
-;  vkDD::Send,{\}
-; +vkDD::Send,{|}
-*vkDD::Send,{Blind}{\}
+; +vk32::Send,{@}
+; +vk36::Send,{^}
+; +vk37::Send,{&}
+; +vk38::Send,{*}
+; +vk39::Send,{(}
+; +vk30::Send,{)}
+; +vkBD::Send,{_}
+; vkDE::Send,{=}
+; +vkDE::Send,{+}
+; ;  vkC0::Send,{[}
+; ; +vkC0::Send,{{}
+; ;  vkDB::Send,{]}
+; ; +vkDB::Send,{}}
+; ; ; *vkC0::Send,{Blind}{[}
+; ; ; *vkDB::Send,{Blind}{]}
+; +vkBB::Send,{:}
+; vkBA::Send,{'}
+; +vkBA::Send,{"}
+; ;  vkDD::Send,{\}
+; ; +vkDD::Send,{|}
+; ; ; *vkDD::Send,{Blind}{\}
 
- vkF3::Send,{``}
- vkF4::Send,{``}
-+vkF3::Send,{~}
-+vkF4::Send,{~}
+; vkF3::Send,{``}
+; vkF4::Send,{``}
+; +vkF3::Send,{~}
+; +vkF4::Send,{~}
 
 ; 無変換
 ; --------------------------------------------------------------------
 
-SendMuhenkan(key) {
+#If
+
+SendQuote(key) {
     mod := ""
-    If GetKeyState("vk1D", "P")
+    If GetKeyState("Ctrl", "P") || GetKeyState("vk1D", "P")
         mod = %mod%^
-    If GetKeyState("LShift", "P")
+    If GetKeyState("Shift", "P")
         mod = %mod%+
     If GetKeyState("Alt", "P")
         mod = %mod%!
     If (GetKeyState("LWin", "P") || GetKeyState("RWin", "P"))
         mod = %mod%#
     hkey = %mod%%key%
-    Send,{Blind}%hkey%
+    Send,%hkey%
     C_q = 0
     ToolTip
-    Return
 }
 
-#If (C_q = 1)
+SendUnquote(key0, key1, key2) {
+    mod := ""
+    key := key0
+    If GetKeyState("Ctrl", "P")
+        mod = %mod%^
+    If GetKeyState("Shift", "P") {
+        If (key2 = "")
+            mod = %mod%+
+        Else
+            key := key2
+    }
+    If GetKeyState("Alt", "P")
+        mod = %mod%!
+    If (GetKeyState("LWin", "P") || GetKeyState("RWin", "P"))
+        mod = %mod%#
+    If GetKeyState("vk1D", "P")
+        Send,%mod%%key1%
+    Else
+        Send,%mod%%key%
+}
 
-*0::SendMuhenkan("0")
-*1::SendMuhenkan("1")
-*2::SendMuhenkan("2")
-*3::SendMuhenkan("3")
-*4::SendMuhenkan("4")
-*5::SendMuhenkan("5")
-*6::SendMuhenkan("6")
-*7::SendMuhenkan("7")
-*8::SendMuhenkan("8")
-*9::SendMuhenkan("9")
-*a::SendMuhenkan("a")
-*b::SendMuhenkan("b")
-*c::SendMuhenkan("c")
-*d::SendMuhenkan("d")
-*e::SendMuhenkan("e")
-*f::SendMuhenkan("f")
-*g::SendMuhenkan("g")
-*h::SendMuhenkan("h")
-*i::SendMuhenkan("i")
-*j::SendMuhenkan("j")
-*k::SendMuhenkan("k")
-*l::SendMuhenkan("l")
-*m::SendMuhenkan("m")
-*n::SendMuhenkan("n")
-*o::SendMuhenkan("o")
-*p::SendMuhenkan("p")
-*q::SendMuhenkan("q")
-*r::SendMuhenkan("r")
-*s::SendMuhenkan("s")
-*t::SendMuhenkan("t")
-*u::SendMuhenkan("u")
-*v::SendMuhenkan("v")
-*w::SendMuhenkan("w")
-*x::SendMuhenkan("x")
-*y::SendMuhenkan("y")
-*z::SendMuhenkan("z")
+SendCase(key0, key1, key2 = "") {
+    If (C_q = 1)
+        SendQuote(key0)
+    Else
+        SendUnquote(key0, key1, key2)
+}
 
-*vkBA::SendMuhenkan("{'}")
-*vkBB::SendMuhenkan("{;}")
-*vkBC::SendMuhenkan("{vkBC}")
-*vkBD::SendMuhenkan("{-}")
-*vkBE::SendMuhenkan("{vkBE}")
-*vkBF::SendMuhenkan("{vkBF}")
-*vkC0::SendMuhenkan("{[}")
-*vkDB::SendMuhenkan("{]}")
-*vkDC::SendMuhenkan("{\}")
-*vkDD::SendMuhenkan("{\}")
-*vkDE::SendMuhenkan("{=}")
-*vkE2::SendMuhenkan("{\}")
-*vkF3::SendMuhenkan("{``}")
-*vkF4::SendMuhenkan("{``}")
+#If
 
-*Esc::SendMuhenkan("{Esc}")
-*BS::SendMuhenkan("{BS}")
-*Tab::SendMuhenkan("{Tab}")
-*Enter::SendMuhenkan("{Enter}")
-*Del::SendMuhenkan("{Del}")
-*Left::SendMuhenkan("{Left}")
-*Right::SendMuhenkan("{Right}")
-*Up::SendMuhenkan("{Up}")
-*Down::SendMuhenkan("{Down}")
-*Home::SendMuhenkan("{Home}")
-*End::SendMuhenkan("{End}")
-*PgUp::SendMuhenkan("{PgUp}")
-*PgDn::SendMuhenkan("{PgDn}")
-
-#If (C_q = 0)
-
-~vk1D & 0::Send,{Blind}{F10}
-~vk1D & 1::Send,{Blind}{F1}
-~vk1D & 2::Send,{Blind}{F2}
-~vk1D & 3::Send,{Blind}{F3}
-~vk1D & 4::Send,{Blind}{F4}
-~vk1D & 5::Send,{Blind}{F5}
-~vk1D & 6::Send,{Blind}{F6}
-~vk1D & 7::Send,{Blind}{F7}
-~vk1D & 8::Send,{Blind}{F8}
-~vk1D & 9::Send,{Blind}{F9}
-~vk1D & a::Send,{Blind}{Home}
-~vk1D & b::Send,{Blind}{Left}
-~vk1D & c::Send,{Blind}^c
-~vk1D & d::Send,{Blind}{Del}
-~vk1D & e::Send,{Blind}{End}
-~vk1D & f::Send,{Blind}{Right}
-~vk1D & g::Send,{Blind}^g
-~vk1D & h::Send,{Blind}{BS}
-~vk1D & i::Send,{Blind}^i
-; ~vk1D & j::Send,{Blind}{Enter}
-~vk1D & k::Send,{Blind}^k
-~vk1D & l::Send,{Blind}^l
-~vk1D & m::Send,{Blind}{Enter}
-~vk1D & n::Send,{Blind}{Down}
-~vk1D & o::Send,{Blind}^o
-~vk1D & p::Send,{Blind}{Up}
+*0::SendCase("0", "{F10}", "{)}")
+*1::SendCase("1", "{F1}")
+*2::SendCase("2", "{F2}", "{@}")
+*3::SendCase("3", "{F3}")
+*4::SendCase("4", "{F4}")
+*5::SendCase("5", "{F5}")
+*6::SendCase("6", "{F6}", "{^}")
+*7::SendCase("7", "{F7}", "{&}")
+*8::SendCase("8", "{F8}", "{*}")
+*9::SendCase("9", "{F9}", "{(}")
+*a::SendCase("a", "{Home}")
+*b::SendCase("b", "{Left}")
+*c::SendCase("c", "^c")
+*d::SendCase("d", "{Del}")
+*e::SendCase("e", "{End}")
+*f::SendCase("f", "{Right}")
+*g::SendCase("g", "^g")
+*h::SendCase("h", "{BS}")
+*i::SendCase("i", "^i")
+; *j::SendCase("j", "{Enter}")
+*k::SendCase("k", "^k")
+*l::SendCase("l", "^l")
+*m::SendCase("m", "{Enter}")
+*n::SendCase("n", "{Down}")
+*o::SendCase("o", "^o")
+*p::SendCase("p", "{Up}")
 ~vk1D & q::QuotedInsert()
-~vk1D & r::Send,{Blind}^r
-~vk1D & s::Send,{Blind}^s
-~vk1D & t::Send,{Blind}^t
-~vk1D & u::Send,{Blind}^u
-~vk1D & v::Send,{Blind}^v
-~vk1D & w::Send,{Blind}^w
-~vk1D & x::Send,{Blind}^x
-~vk1D & y::Send,{Blind}^y
-~vk1D & z::Send,{Blind}^z
+*r::SendCase("r", "^r")
+*s::SendCase("s", "^s")
+*t::SendCase("t", "^t")
+*u::SendCase("u", "^u")
+*v::SendCase("v", "^v")
+*w::SendCase("w", "^w")
+*x::SendCase("x", "^x")
+*y::SendCase("y", "^y")
+*z::SendCase("z", "^z")
 
 ~vk1D & vkBA::
     If GetKeyState("Shift", "P")
@@ -555,35 +506,38 @@ SendMuhenkan(key) {
         Send,{Blind}^{Up}
     Return
 
-~vk1D & vkBC::Send,{Blind}^{Home}
-~vk1D & vkBD::Send,{Blind}{F11}
-~vk1D & vkBE::Send,{Blind}^{End}
-~vk1D & vkBF::Send,{Blind}^{/}
-~vk1D & vkC0::Send,{Blind}{PgUp}
-~vk1D & vkDB::Send,{Blind}{PgDn}
-~vk1D & vkDC::Send,{Blind}^{\}
-~vk1D & vkDD::Send,{Blind}^{\}
-~vk1D & vkDE::Send,{Blind}{F12}
-~vk1D & vkE2::Send,{Blind}^{\}
-~vk1D & vkF3::Send,{Blind}^{``}
-~vk1D & vkF4::Send,{Blind}^{``}
+*vkBA::SendCase("{'}", "^{Down}", "{""}")
+*vkBB::SendCase("{;}", "^{Up}", "{:}")
+
+*vkBC::SendCase("{,}", "^{Home}")
+*vkBD::SendCase("{-}", "{F11}", "{_}")
+*vkBE::SendCase("{.}", "^{End}")
+*vkBF::SendCase("{/}", "^{/}")
+*vkC0::SendCase("{[}", "{PgUp}")
+*vkDB::SendCase("{]}", "{PgDn}")
+*vkDC::SendCase("{\}", "^{\}")
+*vkDD::SendCase("{\}", "^{\}")
+*vkDE::SendCase("{=}", "{F12}", "{+}")
+*vkE2::SendCase("{vkE2}", "^{vkE2}")
+*vkF3::SendCase("{``}", "^{``}", "{~}")
+*vkF4::SendCase("{``}", "^{``}", "{~}")
 
 ~vk1D & Esc::Reload
-~vk1D & BS::Send,{Blind}^{BS}
-~vk1D & Tab::Send,{Blind}^{Tab}
-~vk1D & Enter::Send,{Blind}^{Enter}
-~vk1D & Del::Send,{Blind}^{Del}
-~vk1D & Left::Send,{Blind}^{Left}
-~vk1D & Right::Send,{Blind}^{Right}
-~vk1D & Up::Send,{Blind}^{Up}
-~vk1D & Down::Send,{Blind}^{Down}
-~vk1D & Home::Send,{Blind}^{Home}
-~vk1D & End::Send,{Blind}^{End}
-~vk1D & PgUp::Send,{Blind}^{PgUp}
-~vk1D & PgDn::Send,{Blind}^{PgDn}
+*BS::SendCase("{BS}", "^{BS}")
+*Tab::SendCase("{Tab}", "^{Tab}")
+*Enter::SendCase("{Enter}", "^{Enter}")
+*Del::SendCase("{Del}", "^{Del}")
+*Left::SendCase("{Left}", "^{Left}")
+*Right::SendCase("{Right}", "^{Right}")
+*Up::SendCase("{Up}", "^{Up}")
+*Down::SendCase("{Down}", "^{Down}")
+*Home::SendCase("{Home}", "^{Home}")
+*End::SendCase("{End}", "^{End}")
+*PgUp::SendCase("{PgUp}", "^{PgUp}")
+*PgDn::SendCase("{PgDn}", "^{PgDn}")
 
 ; 無変換-click → C-click
-~vk1D & LButton::Send,{Blind}^{LButton}
+~vk1D & LButton::SendCase("{LButton}", "^{LButton}")
 ; XXX: not implemented for double click, drag etc.
 
 ; 英数
