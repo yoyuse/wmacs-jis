@@ -1,4 +1,5 @@
 ﻿; --------------------------------------------------------------------
+; - 2021-02-02 <!Tab::AltTab
 ; - 2021-02-02 SendCase(), SendQuote(), SendUnquote()
 ; - 2021-02-02 無変換-q → QuotedInsert()
 ; - 2021-02-02 無変換-Arrow → C-Arrow
@@ -524,6 +525,7 @@ SendCase(key0, key1, key2 = "") {
 
 ~vk1D & Esc::Reload
 *BS::SendCase("{BS}", "^{BS}")
+<!Tab::AltTab
 *Tab::SendCase("{Tab}", "^{Tab}")
 *Enter::SendCase("{Enter}", "^{Enter}")
 *Del::SendCase("{Del}", "^{Del}")
