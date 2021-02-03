@@ -1,4 +1,5 @@
 ﻿; --------------------------------------------------------------------
+; - 2021-02-03 OnClipboardChange("ClipChanged")
 ; - 2021-02-02 <!Tab::AltTab
 ; - 2021-02-02 SendCase(), SendQuote(), SendUnquote()
 ; - 2021-02-02 無変換-q → QuotedInsert()
@@ -38,7 +39,7 @@ If FileExist(icon) {
 ; global variable
 ; --------------------------------------------------------------------
 
-Global no_copy_ToolTip := 1
+; Global no_copy_ToolTip := 1
 
 Global C_q = 0
 
@@ -129,6 +130,11 @@ SendDateStampShort() {
     Send,%TimeString%
 }
 
+; OnClipboardChange
+; --------------------------------------------------------------------
+
+OnClipboardChange("ClipChanged")
+
 Return
 
 ; Muhenkan/Henkan modifier
@@ -168,18 +174,11 @@ $vk1D::
     }
     Return
 
-; copy ToolTip
+; OnClipboardChange
 ; --------------------------------------------------------------------
 
-; show tooltip on copy
-OnClipboardChange:
-    global no_copy_ToolTip
-    If (no_copy_ToolTip = 1) {
-        ToolTip
-        SetTimer, RemoveToolTip, 1000
-        Return
-    }
-    if (A_EventInfo = 1) {
+ClipChanged(Type) {
+    if (Type = 1) {
         ; long text
         maxLength := 100
         StringLen, length, Clipboard
@@ -190,19 +189,17 @@ OnClipboardChange:
             ; short text
             ToolTip テキストをコピーしました`n%Clipboard%
         }
-    } else if (A_EventInfo = 2) {
+    } else if (Type = 2) {
         ; non text
         ToolTip テキストでないものをコピーしました
     }
     SetTimer, RemoveToolTip, 1500
-    return
+}
 
-RemoveToolTip:
-    SetTimer, RemoveToolTip, Off
+RemoveToolTip() {
+    ; SetTimer, RemoveToolTip, Off
     ToolTip
-    global no_copy_ToolTip
-    no_copy_ToolTip = 0
-    return
+}
 
 ; Explorer
 ; --------------------------------------------------------------------
@@ -327,8 +324,7 @@ DecodeSubstr(src) {
 }
 
 DoTTT(backward = "+{Home}") {
-    global no_copy_ToolTip
-    no_copy_ToolTip = 1
+    OnClipboardChange("ClipChanged", 0)
     ;;
     clipboard_backup = %ClipboardAll%
     Send, %backward%
@@ -342,6 +338,8 @@ DoTTT(backward = "+{Home}") {
     ; `r`n to `n
     StringReplace, decoded, decoded, `r`n, `n, All
     SendRaw, %decoded%
+    ;;
+    OnClipboardChange("ClipChanged", 1)
     Return
 }
 
