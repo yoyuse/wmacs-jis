@@ -1,4 +1,5 @@
 ﻿; --------------------------------------------------------------------
+; - 2021-02-05 keyPressDuration 200 to 300
 ; - 2021-02-05 new feature: HenkanToCtrl; new option: SandM
 ; - 2021-02-05 ~vk1D & Tab::Return
 ; - 2021-02-03 OnClipboardChange("ClipChanged")
@@ -186,7 +187,7 @@ $vk1C::
     keyPressDuration := A_TickCount - startTime
     ; 変換を押している間に他のホットキーが発動した場合は入力しない
     ; 変換を長押ししていた場合も入力しない
-    If (A_ThisHotkey == "$vk1C" and keyPressDuration < 200) {
+    If (A_ThisHotkey == "$vk1C" and keyPressDuration < 300) {
         Send,{vk1C}
     }
     Return
@@ -199,7 +200,7 @@ $vk1D::
     keyPressDuration := A_TickCount - startTime
     ; 無変換を押している間に他のホットキーが発動した場合は入力しない
     ; 無変換を長押ししていた場合も入力しない
-    If (A_ThisHotkey == "$vk1D" and keyPressDuration < 200) {
+    If (A_ThisHotkey == "$vk1D" and keyPressDuration < 300) {
         Send,{vk1D}
     }
     Return
@@ -217,7 +218,7 @@ $Space::
     keyPressDuration := A_TickCount - startTime
     ; Space を押している間に他のホットキーが発動した場合は入力しない
     ; Space を長押ししていた場合も入力しない
-    If (A_ThisHotkey == "$Space" and keyPressDuration < 200) {
+    If (A_ThisHotkey == "$Space" and keyPressDuration < 300) {
         Send,{Space}
     }
     Return
