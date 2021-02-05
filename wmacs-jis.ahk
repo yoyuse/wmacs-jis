@@ -1,4 +1,5 @@
 ﻿; --------------------------------------------------------------------
+; - 2021-02-05 new feature: HenkanToCtrl; new option: SandM
 ; - 2021-02-05 ~vk1D & Tab::Return
 ; - 2021-02-03 OnClipboardChange("ClipChanged")
 ; - 2021-02-02 <!Tab::AltTab
@@ -39,8 +40,6 @@ If FileExist(icon) {
 
 ; global variable
 ; --------------------------------------------------------------------
-
-; Global no_copy_ToolTip := 1
 
 Global C_q = 0
 
@@ -118,6 +117,43 @@ ParentControlIsOfClass(Class) {
     Return (FocusedControlClass=Class)
 }
 
+; OnClipboardChange
+; --------------------------------------------------------------------
+
+OnClipboardChange("ClipChanged")
+
+; menu
+; --------------------------------------------------------------------
+
+; use 変換 key as Ctrl
+HenkanToCtrl := 1
+
+; use Space and Mod
+SandM := 0
+strSandM := "SandM (Space and Mod)"
+
+; separator
+Menu, Tray, Add
+
+; use SandM (Space and Mod)
+Menu, Tray, Add, %strSandM%, menuSandM
+If (SandM == 1) {
+    Menu, Tray, Check, %strSandM%
+}
+
+; end of Auto-execute Section
+Return
+
+menuSandM:
+    if (SandM == 1) {
+        Menu, Tray, Uncheck, %strSandM%
+        SandM := 0
+    } else {
+        Menu, Tray, Check, %strSandM%
+        SandM := 1
+    }
+    Return
+
 ; Date String
 ; --------------------------------------------------------------------
 
@@ -130,13 +166,6 @@ SendDateStampShort() {
     FormatTime,TimeString,,yyMMdd
     Send,%TimeString%
 }
-
-; OnClipboardChange
-; --------------------------------------------------------------------
-
-OnClipboardChange("ClipChanged")
-
-Return
 
 ; Muhenkan/Henkan modifier
 ; --------------------------------------------------------------------
@@ -174,6 +203,47 @@ $vk1D::
         Send,{vk1D}
     }
     Return
+
+; SandM (Space and Mod)
+; --------------------------------------------------------------------
+
+#If (SandM == 1)
+
+; Space を修飾キーとして扱うための準備
+; Space を押し続けている限りリピートせず待機
+$Space::
+    startTime := A_TickCount
+    KeyWait, Space
+    keyPressDuration := A_TickCount - startTime
+    ; Space を押している間に他のホットキーが発動した場合は入力しない
+    ; Space を長押ししていた場合も入力しない
+    If (A_ThisHotkey == "$Space" and keyPressDuration < 200) {
+        Send,{Space}
+    }
+    Return
+
+SendBlindSandM(key) {
+    mod := ""
+    If GetKeyState("Ctrl", "P")
+        mod = %mod%^
+    If GetKeyState("LShift", "P")
+        mod = %mod%+
+    If GetKeyState("Alt", "P")
+        mod = %mod%!
+    If (GetKeyState("LWin", "P") || GetKeyState("RWin", "P"))
+        mod = %mod%#
+    hkey = %mod%%key%
+    Send, %hkey%
+    Return
+}
+
+; disable LS-Space
+*<+Space::Return
+
+; RS-Space → Space (for key repeat)
+*>+Space::SendBlindSandM("{Space}")
+
+#If
 
 ; OnClipboardChange
 ; --------------------------------------------------------------------
@@ -241,6 +311,11 @@ CopyFilePath() {
 
 ~vk1D & c::CopyFileName()
 ~vk1D & x::CopyFilePath()
+
+#If (isTargetExplorer() and GetKeyState("Shift") and SandM == 1)
+
+~Space & c::CopyFileName()
+~Space & x::CopyFilePath()
 
 #If
 
@@ -410,8 +485,9 @@ DoTTT(backward = "+{Home}") {
 #If
 
 SendQuote(key) {
+    Global SandM
     mod := ""
-    If GetKeyState("Ctrl", "P") || GetKeyState("vk1D", "P")
+    If GetKeyState("Ctrl", "P") || GetKeyState("vk1D", "P") || (SandM == 1 && GetKeyState("Space", "P"))
         mod = %mod%^
     If GetKeyState("Shift", "P")
         mod = %mod%+
@@ -426,9 +502,11 @@ SendQuote(key) {
 }
 
 SendUnquote(key0, key1, key2) {
+    Global HenkanToCtrl
+    Global SandM
     mod := ""
     key := key0
-    If GetKeyState("Ctrl", "P")
+    If GetKeyState("Ctrl", "P") || (HenkanToCtrl == 1 && GetKeyState("vk1C", "P"))
         mod = %mod%^
     If GetKeyState("Shift", "P") {
         If (key2 = "")
@@ -440,7 +518,7 @@ SendUnquote(key0, key1, key2) {
         mod = %mod%!
     If (GetKeyState("LWin", "P") || GetKeyState("RWin", "P"))
         mod = %mod%#
-    If GetKeyState("vk1D", "P")
+    If GetKeyState("vk1D", "P") || (SandM == 1 && GetKeyState("Space", "P"))
         Send,%mod%%key1%
     Else
         Send,%mod%%key%
@@ -475,6 +553,9 @@ SendCase(key0, key1, key2 = "") {
 *h::SendCase("h", "{BS}")
 *i::SendCase("i", "^i")
 ; *j::SendCase("j", "{Enter}")
+#If (SandM == 1)
+*j::SendCase("j", "{Enter}")
+#If
 *k::SendCase("k", "^k")
 *l::SendCase("l", "^l")
 *m::SendCase("m", "{Enter}")
@@ -482,6 +563,9 @@ SendCase(key0, key1, key2 = "") {
 *o::SendCase("o", "^o")
 *p::SendCase("p", "{Up}")
 ~vk1D & q::QuotedInsert()
+#If (SandM == 1)
+~Space & q::QuotedInsert()
+#If
 *r::SendCase("r", "^r")
 *s::SendCase("s", "^s")
 *t::SendCase("t", "^t")
@@ -506,6 +590,23 @@ SendCase(key0, key1, key2 = "") {
         Send,{Blind}^{Up}
     Return
 
+#If (SandM == 1)
+~Space & vkBA::
+    If GetKeyState("Shift", "P")
+        SendDateStampShort()
+    Else
+        Send,{Blind}^{Down}
+    Return
+
+~Space & vkBB::
+    If GetKeyState("Shift", "P")
+        SendDateStampLong()
+    Else
+        Send,{Blind}^{Up}
+    Return
+
+#If
+
 *vkBA::SendCase("{'}", "^{Down}", "{""}")
 *vkBB::SendCase("{;}", "^{Up}", "{:}")
 
@@ -523,10 +624,17 @@ SendCase(key0, key1, key2 = "") {
 *vkF4::SendCase("{``}", "^{``}", "{~}")
 
 ~vk1D & Esc::Reload
+#If (SandM == 1)
+~Space & Esc::Reload
+#If
+*Esc::SendCase("{Esc}", "^{Esc}")
 *BS::SendCase("{BS}", "^{BS}")
 ; <!Tab::AltTab
 ; *Tab::SendCase("{Tab}", "^{Tab}")
 ~vk1D & Tab::Return
+#If (SandM == 1)
+~Space & Tab::Return
+#If
 *Enter::SendCase("{Enter}", "^{Enter}")
 *Del::SendCase("{Del}", "^{Del}")
 *Left::SendCase("{Left}", "^{Left}")
@@ -541,6 +649,9 @@ SendCase(key0, key1, key2 = "") {
 ; 無変換-click → C-click
 ~vk1D & LButton::SendCase("{LButton}", "^{LButton}")
 ; XXX: not implemented for double click, drag etc.
+#If (SandM == 1)
+~Space & LButton::SendCase("{LButton}", "^{LButton}")
+#If
 
 ; 英数
 ; --------------------------------------------------------------------
