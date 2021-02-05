@@ -1,4 +1,5 @@
 ﻿; --------------------------------------------------------------------
+; - 2021-02-05 read/write wmacs-jis.ini
 ; - 2021-02-05 keyPressDuration 200 to 300
 ; - 2021-02-05 new feature: HenkanToCtrl; new option: SandM
 ; - 2021-02-05 ~vk1D & Tab::Return
@@ -133,6 +134,13 @@ HenkanToCtrl := 1
 SandM := 0
 strSandM := "SandM (Space and Mod)"
 
+; wmacs-jis.ini
+IniDir := % A_LineFile . "\.."
+IniFile := % IniDir . "\wmacs-jis.ini"
+Section := "wmacs-jis"
+
+ReadFromIni()
+
 ; separator
 Menu, Tray, Add
 
@@ -153,7 +161,21 @@ menuSandM:
         Menu, Tray, Check, %strSandM%
         SandM := 1
     }
+    WriteToIni()
     Return
+
+; wmacs-jis.ini
+; --------------------------------------------------------------------
+
+ReadFromIni() {
+    global
+    IniRead, SandM, %IniFile%, %Section%, SandM, %SandM%
+}
+
+WriteToIni() {
+    global
+    IniWrite, %SandM%, %IniFile%, %Section%, SandM
+}
 
 ; Date String
 ; --------------------------------------------------------------------
