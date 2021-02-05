@@ -1,4 +1,5 @@
 ﻿; --------------------------------------------------------------------
+; - 2021-02-05 ~vk1D & Tab::Return
 ; - 2021-02-03 OnClipboardChange("ClipChanged")
 ; - 2021-02-02 <!Tab::AltTab
 ; - 2021-02-02 SendCase(), SendQuote(), SendUnquote()
@@ -523,8 +524,9 @@ SendCase(key0, key1, key2 = "") {
 
 ~vk1D & Esc::Reload
 *BS::SendCase("{BS}", "^{BS}")
-<!Tab::AltTab
-*Tab::SendCase("{Tab}", "^{Tab}")
+; <!Tab::AltTab
+; *Tab::SendCase("{Tab}", "^{Tab}")
+~vk1D & Tab::Return
 *Enter::SendCase("{Enter}", "^{Enter}")
 *Del::SendCase("{Del}", "^{Del}")
 *Left::SendCase("{Left}", "^{Left}")
