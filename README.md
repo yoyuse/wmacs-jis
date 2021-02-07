@@ -65,6 +65,8 @@ wmacs では `RCtrl` として `変換-` が割り当てられています。
 
 ## HHKB (英語配列) で wmacs を使う
 
+![wmacs](img/keyboard-layout-hhkb.png)
+
 wmacs は HHKB 英語配列で使うこともできます。
 HHKB 英語配列には `無変換` (`LCtrl`) も `変換` (`RCtrl`) もありませんが、`LCtrl` については、打鍵しやすい位置にある `Control` を使えばよいでしょう。
 `RCtrl` については、 wmacs のメニューの `Remap RAlt to RCtrl` にチェックを入れると、 `RAlt` が `RCtrl` として使えるようになります。
