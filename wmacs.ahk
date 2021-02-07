@@ -1,4 +1,5 @@
-; --------------------------------------------------------------------
+﻿; --------------------------------------------------------------------
+; - 2021-02-07 additional one shot check (not perfect)
 ; - 2021-02-07 icon file existence check
 ; - 2021-02-07 無変換/変換 or LAlt/RAlt as one shot modifier
 ; - 2021-02-06 renamed to wmacs.ahk
@@ -398,8 +399,10 @@ vk1D::LCtrl
 vk1C::RCtrl
 
 ; 単独押しで 無変換 / 変換
-vk1D Up::Send, % "{LCtrl Up}" (A_TimeSincePriorHotkey < 300 ? "{vk1D}" : "")
-vk1C Up::Send, % "{RCtrl Up}" (A_TimeSincePriorHotkey < 300 ? "{vk1C}" : "")
+; vk1D Up::Send, % "{LCtrl Up}" (A_TimeSincePriorHotkey < 300 ? "{vk1D}" : "")
+; vk1C Up::Send, % "{RCtrl Up}" (A_TimeSincePriorHotkey < 300 ? "{vk1C}" : "")
+vk1D Up::Send, % "{LCtrl Up}" (A_PriorKey == "" && A_TimeSincePriorHotkey < 300 ? "{vk1D}" : "")
+vk1C Up::Send, % "{RCtrl Up}" (A_PriorKey == "" && A_TimeSincePriorHotkey < 300 ? "{vk1C}" : "")
 
 #If
 
@@ -411,19 +414,22 @@ vk1C Up::Send, % "{RCtrl Up}" (A_TimeSincePriorHotkey < 300 ? "{vk1C}" : "")
 
 RAlt::RCtrl
 ; 単独押しで変換
-RAlt Up::Send, % "{RCtrl Up}" (A_TimeSincePriorHotkey < 300 ? "{vk1C}" : "")
+; RAlt Up::Send, % "{RCtrl Up}" (A_TimeSincePriorHotkey < 300 ? "{vk1C}" : "")
+RAlt Up::Send, % "{RCtrl Up}" (A_PriorKey == "RAlt" && A_TimeSincePriorHotkey < 300 ? "{vk1C}" : "")
 
 #If (C_q = 0) && (RemapRAltToRCtrl != 1)
 
 RAlt::RAlt
 ; 単独押しで変換
-RAlt Up::Send, % "{RAlt Up}" (A_TimeSincePriorHotkey < 300 ? "{vk1C}" : "")
+; RAlt Up::Send, % "{RAlt Up}" (A_TimeSincePriorHotkey < 300 ? "{vk1C}" : "")
+RAlt Up::Send, % "{RAlt Up}" (A_PriorKey == "RAlt" && A_TimeSincePriorHotkey < 300 ? "{vk1C}" : "")
 
 #If
 
 LAlt::LAlt
 ; 単独押しで無変換
-LAlt Up::Send, % "{LAlt up}" (A_TimeSincePriorHotkey < 300 ? "{vk1D}" : "")
+; LAlt Up::Send, % "{LAlt up}" (A_TimeSincePriorHotkey < 300 ? "{vk1D}" : "")
+LAlt Up::Send, % "{LAlt up}" (A_PriorKey == "LAlt" && A_TimeSincePriorHotkey < 300 ? "{vk1D}" : "")
 
 ; --------------------------------------------------------------------
 ; Explorer
