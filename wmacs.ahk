@@ -1,4 +1,5 @@
-﻿; --------------------------------------------------------------------
+; --------------------------------------------------------------------
+; - 2021-02-07 icon file existence check
 ; - 2021-02-07 無変換/変換 or LAlt/RAlt as one shot modifier
 ; - 2021-02-06 renamed to wmacs.ahk
 ; - 2021-02-05 wmacs-mh.ahk from wmacs3.ahk, wmacs-jis.ahk
@@ -207,7 +208,7 @@ SandC_EndKeys .= "{F1}{F2}{F3}{F4}{F5}{F6}{F7}{F8}{F9}{F10}{F11}{F12}"
 SandC_EndKeys .= "{Left}{Right}{Up}{Down}{Home}{End}{PgUp}{PgDn}{Del}{Ins}"
 SandC_EndKeys .= "{BS}{Capslock}{Numlock}{PrintScreen}{Pause}"
 
-Menu, Tray, Icon, %icoWmacsOn%, 1, 1
+Menu, Tray, Icon, *, 1, 1
 
 ; 区切り線
 Menu, Tray, Add
@@ -242,6 +243,9 @@ SetTimer, WmacsStatusCheckTimer, %WmacsIconCheckInterval%
 Return
 
 WmacsStatusCheckTimer:
+    if !(FileExist(icoWmacsOn) && FileExist(icoWmacsOff)) {
+        Return
+    }
     if (isWmacsTarget() && !A_IsSuspended) {
         Menu, Tray, Icon, %icoWmacsOn%, 1
     } else {
