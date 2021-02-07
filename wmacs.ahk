@@ -1,4 +1,5 @@
 ﻿; --------------------------------------------------------------------
+; - 2021-02-07 無変換/変換 or LAlt/RAlt as one shot modifier
 ; - 2021-02-06 renamed to wmacs.ahk
 ; - 2021-02-05 wmacs-mh.ahk from wmacs3.ahk, wmacs-jis.ahk
 ; --------------------------------------------------------------------
@@ -392,9 +393,9 @@ SendBlindSandC(key) {
 vk1D::LCtrl
 vk1C::RCtrl
 
-; 無変換-変換 / 変換-無変換 → 変換 / 無変換
-<^vk1C::Send,{vk1C}
->^vk1D::Send,{vk1D}
+; 単独押しで 無変換 / 変換
+vk1D Up::Send, % "{LCtrl Up}" (A_TimeSincePriorHotkey < 300 ? "{vk1D}" : "")
+vk1C Up::Send, % "{RCtrl Up}" (A_TimeSincePriorHotkey < 300 ? "{vk1C}" : "")
 
 #If
 
@@ -405,13 +406,20 @@ vk1C::RCtrl
 #If (C_q = 0) && (RemapRAltToRCtrl == 1)
 
 RAlt::RCtrl
+; 単独押しで変換
+RAlt Up::Send, % "{RCtrl Up}" (A_TimeSincePriorHotkey < 300 ? "{vk1C}" : "")
 
-; LAlt-RAlt / RAlt-LAlt → 変換 / 無変換
-; XXX: この設定をすると上記の RAlt::RCtrl のリマップが効かない
-; <!RAlt::Send,{vk1C}
-; >!LAlt::Send,{vk1D}
+#If (C_q = 0) && (RemapRAltToRCtrl != 1)
+
+RAlt::RAlt
+; 単独押しで変換
+RAlt Up::Send, % "{RAlt Up}" (A_TimeSincePriorHotkey < 300 ? "{vk1C}" : "")
 
 #If
+
+LAlt::LAlt
+; 単独押しで無変換
+LAlt Up::Send, % "{LAlt up}" (A_TimeSincePriorHotkey < 300 ? "{vk1D}" : "")
 
 ; --------------------------------------------------------------------
 ; Explorer
