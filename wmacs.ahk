@@ -1,6 +1,7 @@
 ﻿; --------------------------------------------------------------------
-WmacsVersion = 4.4.0
+WmacsVersion = 4.5.0
 ; --------------------------------------------------------------------
+; - 2021-02-09 4.5.0 new option: UseOneShotModifier
 ; - 2021-02-08 4.4.0 change option: Use104On109 to Use104On104
 ; - 2021-02-08 4.3.0 new menu item: version info, opening URL
 ; - 2021-02-08 4.2.0 remove option: SandC, CSSpaceToEnter
@@ -187,6 +188,10 @@ Section := "wmacs"
 strWmacsVersion := "Wmacs Version " . WmacsVersion
 WmacsURL := "https://github.com/yoyuse/wmacs-jis"
 
+UseOneShotModifier := 0
+strUseOneShotModifier := "Use One Shot Modifier"
+IniRead, UseOneShotModifier, %IniFile%, %Section%, UseOneShotModifier, %UseOneShotModifier%
+
 Use104On104 := 0
 strUse104On104 := "Use 104 Keyboard Driver"
 IniRead, Use104On104, %IniFile%, %Section%, Use104On104, %Use104On104%
@@ -206,6 +211,12 @@ Menu, Tray, Add
 
 ; バージョン情報
 Menu, Tray, Add, %strWmacsVersion%, menuWmacsVersion
+
+; 無変換/変換へのワンショットモディファイアを使うか
+Menu, Tray, Add, %strUseOneShotModifier%, menuUseOneShotModifier
+if (UseOneShotModifier == 1) {
+    Menu, Tray, Check, %strUseOneShotModifier%
+}
 
 ; US キーボードドライバで US 配列を使うか
 Menu, Tray, Add, %strUse104On104%, menuUse104On104
@@ -237,6 +248,17 @@ WmacsStatusCheckTimer:
 
 menuWmacsVersion:
     Run, %WmacsURL%
+    Return
+
+menuUseOneShotModifier:
+    if (UseOneShotModifier == 1) {
+        Menu, Tray, Uncheck, %strUseOneShotModifier%
+        UseOneShotModifier := 0
+    } else {
+        Menu, Tray, Check, %strUseOneShotModifier%
+        UseOneShotModifier := 1
+    }
+    IniWrite, %UseOneShotModifier%, %IniFile%, %Section%, UseOneShotModifier
     Return
 
 menuUse104On104:
@@ -284,9 +306,8 @@ menuRemapRAltToRCtrl:
 vk1D::LCtrl
 vk1C::RCtrl
 
+#If (Use104On104 != 1) && (UseOneShotModifier == 1)
 ; 単独押しで 無変換 / 変換
-; vk1D Up::Send, % "{LCtrl Up}" (A_TimeSincePriorHotkey < 300 ? "{vk1D}" : "")
-; vk1C Up::Send, % "{RCtrl Up}" (A_TimeSincePriorHotkey < 300 ? "{vk1C}" : "")
 vk1D Up::Send, % "{LCtrl Up}" (A_PriorKey == "" && A_TimeSincePriorHotkey < 300 ? "{vk1D}" : "")
 vk1C Up::Send, % "{RCtrl Up}" (A_PriorKey == "" && A_TimeSincePriorHotkey < 300 ? "{vk1C}" : "")
 
@@ -299,22 +320,28 @@ vk1C Up::Send, % "{RCtrl Up}" (A_PriorKey == "" && A_TimeSincePriorHotkey < 300 
 #If (C_q = 0) && (RemapRAltToRCtrl == 1)
 
 RAlt::RCtrl
+
+#If (C_q = 0) && (RemapRAltToRCtrl == 1) && (UseOneShotModifier == 1)
+
 ; 単独押しで変換
-; RAlt Up::Send, % "{RCtrl Up}" (A_TimeSincePriorHotkey < 300 ? "{vk1C}" : "")
 RAlt Up::Send, % "{RCtrl Up}" (A_PriorKey == "RAlt" && A_TimeSincePriorHotkey < 300 ? "{vk1C}" : "")
 
 #If (C_q = 0) && (RemapRAltToRCtrl != 1)
 
 RAlt::RAlt
+
+#If (C_q = 0) && (RemapRAltToRCtrl != 1) && (UseOneShotModifier == 1)
+
 ; 単独押しで変換
-; RAlt Up::Send, % "{RAlt Up}" (A_TimeSincePriorHotkey < 300 ? "{vk1C}" : "")
 RAlt Up::Send, % "{RAlt Up}" (A_PriorKey == "RAlt" && A_TimeSincePriorHotkey < 300 ? "{vk1C}" : "")
 
 #If
 
 LAlt::LAlt
+
+#If (UseOneShotModifier == 1)
+
 ; 単独押しで無変換
-; LAlt Up::Send, % "{LAlt up}" (A_TimeSincePriorHotkey < 300 ? "{vk1D}" : "")
 LAlt Up::Send, % "{LAlt up}" (A_PriorKey == "LAlt" && A_TimeSincePriorHotkey < 300 ? "{vk1D}" : "")
 
 ; --------------------------------------------------------------------
