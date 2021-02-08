@@ -1,10 +1,13 @@
 ﻿; --------------------------------------------------------------------
-; - 2021-02-08 remove option: SandC, CSSpaceToEnter
-; - 2021-02-07 additional one shot check (not perfect)
-; - 2021-02-07 icon file existence check
-; - 2021-02-07 無変換/変換 or LAlt/RAlt as one shot modifier
-; - 2021-02-06 renamed to wmacs.ahk
-; - 2021-02-05 wmacs-mh.ahk from wmacs3.ahk, wmacs-jis.ahk
+WmacsVersion = 4.3.0
+; --------------------------------------------------------------------
+; - 2021-02-08 4.3.0 new menu item: version info, opening URL
+; - 2021-02-08 4.2.0 remove option: SandC, CSSpaceToEnter
+; - 2021-02-07 4.1.2 additional one shot check (not perfect)
+; - 2021-02-07 4.1.1 icon file existence check
+; - 2021-02-07 4.1.0 無変換/変換 or LAlt/RAlt as one shot modifier
+; - 2021-02-06 4.0.0 renamed to wmacs.ahk
+; - 2021-02-05 4.0β  wmacs-mh.ahk from wmacs3.ahk, wmacs-jis.ahk
 ; --------------------------------------------------------------------
 
 ; --------------------------------------------------------------------
@@ -180,6 +183,9 @@ RemoveToolTip() {
 IniFile := % A_LineFile . "\..\wmacs.ini"
 Section := "wmacs"
 
+strWmacsVersion := "Wmacs Version " . WmacsVersion
+WmacsURL := "https://github.com/yoyuse/wmacs-jis"
+
 RemapRAltToRCtrl := 0
 strRemapRAltToRCtrl := "Remap RAlt to RCtrl"
 IniRead, RemapRAltToRCtrl, %IniFile%, %Section%, RemapRAltToRCtrl, %RemapRAltToRCtrl%
@@ -196,6 +202,9 @@ Menu, Tray, Icon, *, 1, 1
 
 ; 区切り線
 Menu, Tray, Add
+
+; バージョン情報
+Menu, Tray, Add, %strWmacsVersion%, menuWmacsVersion
 
 ; RAlt を RCtrl にリマップするか
 Menu, Tray, Add, %strRemapRAltToRCtrl%, menuRemapRAltToRCtrl
@@ -223,6 +232,10 @@ WmacsStatusCheckTimer:
     } else {
         Menu, Tray, Icon, %icoWmacsOff%, 1
     }
+    Return
+
+menuWmacsVersion:
+    Run, %WmacsURL%
     Return
 
 menuRemapRAltToRCtrl:
