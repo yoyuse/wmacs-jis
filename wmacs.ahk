@@ -1,6 +1,7 @@
 ﻿; --------------------------------------------------------------------
-WmacsVersion = 4.3.0
+WmacsVersion = 4.4.0
 ; --------------------------------------------------------------------
+; - 2021-02-08 4.4.0 change option: Use104On109 to Use104On104
 ; - 2021-02-08 4.3.0 new menu item: version info, opening URL
 ; - 2021-02-08 4.2.0 remove option: SandC, CSSpaceToEnter
 ; - 2021-02-07 4.1.2 additional one shot check (not perfect)
@@ -186,13 +187,13 @@ Section := "wmacs"
 strWmacsVersion := "Wmacs Version " . WmacsVersion
 WmacsURL := "https://github.com/yoyuse/wmacs-jis"
 
+Use104On104 := 0
+strUse104On104 := "Use 104 Keyboard Driver"
+IniRead, Use104On104, %IniFile%, %Section%, Use104On104, %Use104On104%
+
 RemapRAltToRCtrl := 0
 strRemapRAltToRCtrl := "Remap RAlt to RCtrl"
 IniRead, RemapRAltToRCtrl, %IniFile%, %Section%, RemapRAltToRCtrl, %RemapRAltToRCtrl%
-
-Use104On109 := 1
-strUse104On109 := "Use 104 Layout on 109 Keyboard Driver"
-IniRead, Use104On109, %IniFile%, %Section%, Use104On109, %Use104On109%
 
 icoWmacsOn := % A_LineFile . "\..\wmacs-on.ico"
 icoWmacsOff := % A_LineFile . "\..\wmacs-off.ico"
@@ -206,16 +207,16 @@ Menu, Tray, Add
 ; バージョン情報
 Menu, Tray, Add, %strWmacsVersion%, menuWmacsVersion
 
+; US キーボードドライバで US 配列を使うか
+Menu, Tray, Add, %strUse104On104%, menuUse104On104
+if (Use104On104 == 1) {
+    Menu, Tray, Check, %strUse104On104%
+}
+
 ; RAlt を RCtrl にリマップするか
 Menu, Tray, Add, %strRemapRAltToRCtrl%, menuRemapRAltToRCtrl
 If (RemapRAltToRCtrl == 1) {
     Menu, Tray, Check, %strRemapRAltToRCtrl%
-}
-
-; JIS キーボードドライバで US 配列を使うか
-Menu, Tray, Add, %strUse104On109%, menuUse104On109
-if (Use104On109 == 1) {
-    Menu, Tray, Check, %strUse104On109%
 }
 
 SetTimer, WmacsStatusCheckTimer, %WmacsIconCheckInterval%
@@ -238,6 +239,17 @@ menuWmacsVersion:
     Run, %WmacsURL%
     Return
 
+menuUse104On104:
+    if (Use104On104 == 1) {
+        Menu, Tray, Uncheck, %strUse104On104%
+        Use104On104 := 0
+    } else {
+        Menu, Tray, Check, %strUse104On104%
+        Use104On104 := 1
+    }
+    IniWrite, %Use104On104%, %IniFile%, %Section%, Use104On104
+    Return
+
 menuRemapRAltToRCtrl:
     if (RemapRAltToRCtrl == 1) {
         Menu, Tray, Uncheck, %strRemapRAltToRCtrl%
@@ -247,17 +259,6 @@ menuRemapRAltToRCtrl:
         RemapRAltToRCtrl := 1
     }
     IniWrite, %RemapRAltToRCtrl%, %IniFile%, %Section%, RemapRAltToRCtrl
-    Return
-
-menuUse104On109:
-    if (Use104On109 == 1) {
-        Menu, Tray, Uncheck, %strUse104On109%
-        Use104On109 := 0
-    } else {
-        Menu, Tray, Check, %strUse104On109%
-        Use104On109 := 1
-    }
-    IniWrite, %Use104On109%, %IniFile%, %Section%, Use104On109
     Return
 
 ; --------------------------------------------------------------------
@@ -277,7 +278,7 @@ menuUse104On109:
 ; Muhenkan/Henkan Modifier
 ; --------------------------------------------------------------------
 
-#If (Use104On109 == 1)
+#If (Use104On104 != 1)
 
 ; 無変換 / 変換 → LCtrl / RCtrl
 vk1D::LCtrl
@@ -651,7 +652,7 @@ SendDateStampShort() {
 ; wmacs
 ; --------------------------------------------------------------------
 
-#If (C_q = 0 && isWmacsTarget() && Use104On109 == 1)
+#If (C_q = 0 && isWmacsTarget() && Use104On104 != 1)
 
  +2::Send,@
  +6::Send,{^}
@@ -721,7 +722,7 @@ SendDateStampShort() {
 *<^,::SendBlind("^{Home}")
 *<^.::SendBlind("^{End}")
 
-#If (Use104On109 == 1)
+#If (Use104On104 != 1)
 
 ; disable 英数
 vkF0::Return

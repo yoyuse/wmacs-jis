@@ -72,4 +72,4 @@ HHKB 英語配列には `無変換` (`LCtrl`) も `変換` (`RCtrl`) もあり�
 `RCtrl` については、 wmacs のメニューの `Remap RAlt to RCtrl` にチェックを入れると、 `RAlt` が `RCtrl` として使えるようになります。
 
 wmacs は、日本語キーボードドライバで使用する想定でキーをリマップしています。
-HHKB を英語キーボードドライバで使用していて、キー配置がずれる場合は、 wmacs のメニューの `Use 104 Layout on 109 Keyboard Driver` のチェックを外してみてください。
+HHKB を英語キーボードドライバで使用していて、キー配置がずれる場合は、 wmacs のメニューの `Use 104 Keyboard Driver` をチェックしてみてください。
