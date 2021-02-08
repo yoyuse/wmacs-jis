@@ -1,4 +1,5 @@
 ﻿; --------------------------------------------------------------------
+; - 2021-02-08 remove option: SandC, CSSpaceToEnter
 ; - 2021-02-07 additional one shot check (not perfect)
 ; - 2021-02-07 icon file existence check
 ; - 2021-02-07 無変換/変換 or LAlt/RAlt as one shot modifier
@@ -183,14 +184,6 @@ RemapRAltToRCtrl := 0
 strRemapRAltToRCtrl := "Remap RAlt to RCtrl"
 IniRead, RemapRAltToRCtrl, %IniFile%, %Section%, RemapRAltToRCtrl, %RemapRAltToRCtrl%
 
-SandC := 0
-strSandC := "SandC (Space and Ctrl)"
-IniRead, SandC, %IniFile%, %Section%, SandC, %SandC%
-
-CSSpaceToEnter := 0
-strCSSpaceToEnter := "Ctrl+Shift+Space to Enter"
-IniRead, CSSpaceToEnter, %IniFile%, %Section%, CSSpaceToEnter, %CSSpaceToEnter%
-
 Use104On109 := 1
 strUse104On109 := "Use 104 Layout on 109 Keyboard Driver"
 IniRead, Use104On109, %IniFile%, %Section%, Use104On109, %Use104On109%
@@ -198,16 +191,6 @@ IniRead, Use104On109, %IniFile%, %Section%, Use104On109, %Use104On109%
 icoWmacsOn := % A_LineFile . "\..\wmacs-on.ico"
 icoWmacsOff := % A_LineFile . "\..\wmacs-off.ico"
 WmacsIconCheckInterval := 1000
-
-; - AutoHotKey で SandS - by edvakf in hatena
-; - http://d.hatena.ne.jp/edvakf/20101027/1288168554
-SandC_SpaceDownTime := A_TickCount
-SandC_SpaceDown := 0
-SandC_AnyKeyPressed := 0
-SandC_EndKeys := "{LControl}{RControl}{LAlt}{RAlt}{LShift}{RShift}{LWin}{RWin}{AppsKey}"
-SandC_EndKeys .= "{F1}{F2}{F3}{F4}{F5}{F6}{F7}{F8}{F9}{F10}{F11}{F12}"
-SandC_EndKeys .= "{Left}{Right}{Up}{Down}{Home}{End}{PgUp}{PgDn}{Del}{Ins}"
-SandC_EndKeys .= "{BS}{Capslock}{Numlock}{PrintScreen}{Pause}"
 
 Menu, Tray, Icon, *, 1, 1
 
@@ -218,18 +201,6 @@ Menu, Tray, Add
 Menu, Tray, Add, %strRemapRAltToRCtrl%, menuRemapRAltToRCtrl
 If (RemapRAltToRCtrl == 1) {
     Menu, Tray, Check, %strRemapRAltToRCtrl%
-}
-
-; SandC (Space and Ctrl) を使用するか
-Menu, Tray, Add, %strSandC%, menuSandC
-If (SandC == 1) {
-    Menu, Tray, Check, %strSandC%
-}
-
-; C-S-Space を Enter にリマップするか
-Menu, Tray, Add, %strCSSpaceToEnter%, menuCSSpaceToEnter
-If (CSSpaceToEnter == 1) {
-    Menu, Tray, Check, %strCSSpaceToEnter%
 }
 
 ; JIS キーボードドライバで US 配列を使うか
@@ -265,28 +236,6 @@ menuRemapRAltToRCtrl:
     IniWrite, %RemapRAltToRCtrl%, %IniFile%, %Section%, RemapRAltToRCtrl
     Return
 
-menuSandC:
-    if (SandC == 1) {
-        Menu, Tray, Uncheck, %strSandC%
-        SandC := 0
-    } else {
-        Menu, Tray, Check, %strSandC%
-        SandC := 1
-    }
-    IniWrite, %SandC%, %IniFile%, %Section%, SandC
-    Return
-
-menuCSSpaceToEnter:
-    if (CSSpaceToEnter == 1) {
-        Menu, Tray, Uncheck, %strCSSpaceToEnter%
-        CSSpaceToEnter := 0
-    } else {
-        Menu, Tray, Check, %strCSSpaceToEnter%
-        CSSpaceToEnter := 1
-    }
-    IniWrite, %CSSpaceToEnter%, %IniFile%, %Section%, CSSpaceToEnter
-    Return
-
 menuUse104On109:
     if (Use104On109 == 1) {
         Menu, Tray, Uncheck, %strUse104On109%
@@ -308,83 +257,6 @@ menuUse104On109:
 
 ; XXX
 ~vk1D & Esc::Reload
-
-#If
-
-; --------------------------------------------------------------------
-; SandC (Space and Ctrl)
-; --------------------------------------------------------------------
-
-; - AutoHotKey で SandS - by edvakf in hatena
-; - http://d.hatena.ne.jp/edvakf/20101027/1288168554
-#If (SandC == 1)
-
-*Space::
-    SendInput {RCtrl Down}
-    If (SandC_SpaceDown = 1) {
-        Return
-    }
-    SandC_SpaceDown := 1
-    SandC_SpaceDownTime := A_TickCount
-    SandC_AnyKeyPressed := 0
-    Input, SandC_AnyKey, L1 V, %SandC_EndKeys%
-    SandC_AnyKeyPressed := 1
-    Return
-
-*Space Up::
-    SendInput {RCtrl Up}
-    SandC_SpaceDown := 0
-    If (SandC_AnyKeyPressed = 0) {
-        If (A_TickCount - SandC_SpaceDownTime < 400) { ; 200
-            SendInput {Blind}{Space}
-        }
-        ; Send EndKey of the "Input" command above
-        ; You must use Send here since SendInput is ignored by "Input"
-        Send {RCtrl}
-    }
-    Return
-
-; RS-Space で Space (リピート用)
-
-SendBlindSandC(key) {
-    mod := ""
-    ; If GetKeyState("RCtrl", "P")
-    If GetKeyState("Ctrl", "P")
-        mod = %mod%^
-    If GetKeyState("LShift", "P")
-        mod = %mod%+
-    If GetKeyState("Alt", "P")
-        mod = %mod%!
-    If (GetKeyState("LWin", "P") || GetKeyState("RWin", "P"))
-        mod = %mod%#
-    hkey = %mod%%key%
-    Send, %hkey%
-    Return
-}
-
-*>+Space::SendBlindSandC("{Space}")
-
-#If
-
-; --------------------------------------------------------------------
-; C-S-Space to Enter
-; --------------------------------------------------------------------
-
-#If (CSSpaceToEnter == 1)
-
-*<^+Space::
-    SpaceLongPressed := 0
-    KeyWait, Space, T0.4
-    If ErrorLevel
-        SpaceLongPressed := 1
-    KeyWait, Space
-    Return
-
-*<^+Space up::
-    If (A_PriorHotkey == "*<^+Space")
-        If SpaceLongPressed = 0
-            Send, {Enter}
-    Return
 
 #If
 
@@ -471,11 +343,6 @@ CopyFilePath() {
 
 ~vk1D & c::CopyFileName()
 ~vk1D & x::CopyFilePath()
-
-#If (isTargetExplorer() and GetKeyState("Shift") and SandC == 1)
-
-~Space & c::CopyFileName()
-~Space & x::CopyFilePath()
 
 #If
 
