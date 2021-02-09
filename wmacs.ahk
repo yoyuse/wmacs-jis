@@ -1,6 +1,7 @@
 ﻿; --------------------------------------------------------------------
-WmacsVersion = 4.5.0
+WmacsVersion = 4.5.1
 ; --------------------------------------------------------------------
+; - 2021-02-09 4.5.1 fix S-PgUp, C-`, CapsLock, 0
 ; - 2021-02-09 4.5.0 new option: UseOneShotModifier
 ; - 2021-02-08 4.4.0 change option: Use104On109 to Use104On104
 ; - 2021-02-08 4.3.0 new menu item: version info, opening URL
@@ -711,6 +712,16 @@ SendDateStampShort() {
 *<^vkDD::Send,{Blind}^\
 *+vkDD::|
 *vkDD::\
+*<^vkF3::SendBlind("^{Del}")
+*<^vkF4::SendBlind("^{Del}")
+
+#If (C_q = 0 && isWmacsTarget() && Use104On104 == 1)
+
+ *+vk30::0
+*<^vkBB::SendBlind("{F12}")
+*<^vkC0::SendBlind("^{Del}")
+*<^vkDB::SendBlind("{PgUp}")
+*<^vkDD::SendBlind("{PgDn}")
 
 #If (C_q = 0 && isWmacsTarget())
 
@@ -725,34 +736,32 @@ SendDateStampShort() {
 *<^9::SendBlind("{F9}")
 *<^0::SendBlind("{F10}")
 *<^-::SendBlind("{F11}")
-*<^=::SendBlind("{F12}")
-*<^`::SendBlind("^{Del}")
-*<^vkF3::SendBlind("^{Del}")
-*<^vkF4::SendBlind("^{Del}")
  <^q::quoted_insert()
 *<^e::SendBlind("{End}")
 *<^p::SendBlind("{Up}")
-*<^vkDB::SendBlind("{PgUp}")
-*<^vkDD::SendBlind("{PgDn}")
 *<^a::SendBlind("{Home}")
 *<^d::SendBlind("{Del}")
 *<^f::SendBlind("{Right}")
 *<^h::SendBlind("{BS}")
 *<^j::SendBlind("{Enter}") ; XXX
-+<^vkBA::SendDateStampLong()
- <^vkBA::Send,{Blind}^{Up}
-+<^vkDE::SendDateStampShort()
- <^vkDE::Send,{Blind}^{Down}
 *<^b::SendBlind("{Left}")
 *<^n::SendBlind("{Down}")
 *<^m::SendBlind("{Enter}")
 *<^,::SendBlind("^{Home}")
 *<^.::SendBlind("^{End}")
 
-#If (Use104On104 != 1)
+#If (C_q = 0 && Use104On104 != 1)
 
 ; disable 英数
 vkF0::Return
+
+#If (C_q = 0 && Use104On104 == 1)
+
+; disable CapsLock
+CapsLock::Return
+
+#If (C_q = 0)
+
 ; カタカナ ひらがな → 半角/全角
 vkF2::Send,{vkF3}
 
