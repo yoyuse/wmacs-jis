@@ -1,6 +1,7 @@
 ﻿; --------------------------------------------------------------------
-WmacsVersion = 4.5.3
+WmacsVersion = 4.6.0
 ; --------------------------------------------------------------------
+; - 2021-02-10 4.6.0 do not check status nor update icon
 ; - 2021-02-10 4.5.3 remove unnecessary code
 ; - 2021-02-10 4.5.2 align
 ; - 2021-02-09 4.5.1 fix S-PgUp, C-`, CapsLock, 0
@@ -203,11 +204,11 @@ RemapRAltToRCtrl := 0
 strRemapRAltToRCtrl := "Remap RAlt to RCtrl"
 IniRead, RemapRAltToRCtrl, %IniFile%, %Section%, RemapRAltToRCtrl, %RemapRAltToRCtrl%
 
-icoWmacsOn := % A_LineFile . "\..\wmacs-on.ico"
-icoWmacsOff := % A_LineFile . "\..\wmacs-off.ico"
-WmacsIconCheckInterval := 1000
+IconFile := % A_LineFile . "\..\wmacs.ico"
 
-Menu, Tray, Icon, *, 1, 1
+If (FileExist(IconFile)) {
+    Menu, Tray, Icon, %IconFile%, 1, 1
+}
 
 ; 区切り線
 Menu, Tray, Add
@@ -233,21 +234,8 @@ If (RemapRAltToRCtrl == 1) {
     Menu, Tray, Check, %strRemapRAltToRCtrl%
 }
 
-SetTimer, WmacsStatusCheckTimer, %WmacsIconCheckInterval%
-
 ; Auto-execute Section の終わり
 Return
-
-WmacsStatusCheckTimer:
-    if !(FileExist(icoWmacsOn) && FileExist(icoWmacsOff)) {
-        Return
-    }
-    if (isWmacsTarget() && !A_IsSuspended) {
-        Menu, Tray, Icon, %icoWmacsOn%, 1
-    } else {
-        Menu, Tray, Icon, %icoWmacsOff%, 1
-    }
-    Return
 
 menuWmacsVersion:
     Run, %WmacsURL%
