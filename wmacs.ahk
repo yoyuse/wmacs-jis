@@ -1,6 +1,7 @@
 ﻿; --------------------------------------------------------------------
-WmacsVersion = 4.5.2
+WmacsVersion = 4.5.3
 ; --------------------------------------------------------------------
+; - 2021-02-10 4.5.3 remove unnecessary code
 ; - 2021-02-10 4.5.2 align
 ; - 2021-02-09 4.5.1 fix S-PgUp, C-`, CapsLock, 0
 ; - 2021-02-09 4.5.0 new option: UseOneShotModifier
@@ -379,11 +380,6 @@ CopyFilePath() {
 
 +^c::CopyFileName()
 +^x::CopyFilePath()
-
-#If (isTargetExplorer() and GetKeyState("Shift"))
-
-~vk1D & c::CopyFileName()
-~vk1D & x::CopyFilePath()
 
 #If
 
