@@ -1,6 +1,7 @@
 ﻿; --------------------------------------------------------------------
-WmacsVersion = 4.5.1
+WmacsVersion = 4.5.2
 ; --------------------------------------------------------------------
+; - 2021-02-10 4.5.2 align
 ; - 2021-02-09 4.5.1 fix S-PgUp, C-`, CapsLock, 0
 ; - 2021-02-09 4.5.0 new option: UseOneShotModifier
 ; - 2021-02-08 4.4.0 change option: Use104On109 to Use104On104
@@ -290,9 +291,7 @@ menuRemapRAltToRCtrl:
 
 #If (C_q = 0)
 
-+<^Esc::Reload
-
-; XXX
+     +<^Esc::Reload
 ~vk1D & Esc::Reload
 
 #If
@@ -498,17 +497,13 @@ DoTTT(backward = "+{Home}") {
 
 #If (isTargetTTTExplorer())
 
-!j::DoTTT("+^{Home}")
-; 無変換-j → DoTTT()
+       !j::DoTTT("+^{Home}")
 ~vk1D & j::DoTTT("+^{Home}")
 
 #If (isTargetTTT())
 
-!j::DoTTT()
-^!j::DoTTT("+^{Home}")
-
-; 無変換-j → DoTTT()
-; C-無変換-j → DoTTT()
+       !j::DoTTT()
+      ^!j::DoTTT("+^{Home}")
 ~vk1D & j::
     If GetKeyState("LCtrl","P")
         DoTTT("+^{Home}")
@@ -682,38 +677,38 @@ SendDateStampShort() {
 
 #If (C_q = 0 && isWmacsTarget() && Use104On104 != 1)
 
- +2::Send,@
- +6::Send,{^}
-*+7::&
-*+8::*
-*+9::(
-*+0::)
-*+vkBD::_
-*<^vkDE::SendBlind("{F12}")
-*+vkDE::Send,{+}
-*vkDE::=
-*+vkF3::~
-*+vkF4::~
-*vkF3::Send,{``}
-*vkF4::Send,{``}
-*<^vkC0::SendBlind("{PgUp}")
-*+vkC0::Send,{{}
-*vkC0::[
-*<^vkDB::SendBlind("{PgDn}")
-*+vkDB::Send,{}}
-*vkDB::]
- +<^vkBB::SendDateStampLong()
- <^vkBB::Send,{Blind}^{Up}
- +vkBB::Send,{:}
- +<^vkBA::SendDateStampShort()
+     +2::Send,{@}
+     +6::Send,{^}
+    *+7::&
+    *+8::*
+    *+9::(
+    *+0::)
++<^vkBA::SendDateStampShort()
  <^vkBA::Send,{Blind}^{Down}
-*+vkBA::"
-*vkBA::'
+ *+vkBA::"
+  *vkBA::'
++<^vkBB::SendDateStampLong()
+ <^vkBB::Send,{Blind}^{Up}
+  +vkBB::Send,{:}
+ *+vkBD::_
+*<^vkC0::SendBlind("{PgUp}")
+ *+vkC0::Send,{{}
+  *vkC0::[
+*<^vkDB::SendBlind("{PgDn}")
+ *+vkDB::Send,{}}
+  *vkDB::]
 *<^vkDD::Send,{Blind}^\
-*+vkDD::|
-*vkDD::\
+ *+vkDD::|
+  *vkDD::\
+*<^vkDE::SendBlind("{F12}")
+ *+vkDE::Send,{+}
+  *vkDE::=
 *<^vkF3::SendBlind("^{Del}")
 *<^vkF4::SendBlind("^{Del}")
+ *+vkF3::~
+ *+vkF4::~
+  *vkF3::Send,{``}
+  *vkF4::Send,{``}
 
 #If (C_q = 0 && isWmacsTarget() && Use104On104 == 1)
 
