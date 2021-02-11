@@ -1,6 +1,7 @@
 ﻿; --------------------------------------------------------------------
-WmacsVersion = 4.6.0
+WmacsVersion = 4.6.1
 ; --------------------------------------------------------------------
+; - 2021-02-11 4.6.1 ttt file existence check
 ; - 2021-02-10 4.6.0 do not check status nor update icon
 ; - 2021-02-10 4.5.3 remove unnecessary code
 ; - 2021-02-10 4.5.2 align
@@ -189,6 +190,12 @@ RemoveToolTip() {
 IniFile := % A_LineFile . "\..\wmacs.ini"
 Section := "wmacs"
 
+; wmacs.ico
+IconFile := % A_LineFile . "\..\wmacs.ico"
+
+; wmacs-ttt.ini
+TTTIniFile := % A_LineFile . "\..\wmacs-ttt.ini"
+
 strWmacsVersion := "Wmacs Version " . WmacsVersion
 WmacsURL := "https://github.com/yoyuse/wmacs-jis"
 
@@ -203,8 +210,6 @@ IniRead, Use104On104, %IniFile%, %Section%, Use104On104, %Use104On104%
 RemapRAltToRCtrl := 0
 strRemapRAltToRCtrl := "Remap RAlt to RCtrl"
 IniRead, RemapRAltToRCtrl, %IniFile%, %Section%, RemapRAltToRCtrl, %RemapRAltToRCtrl%
-
-IconFile := % A_LineFile . "\..\wmacs.ico"
 
 If (FileExist(IconFile)) {
     Menu, Tray, Icon, %IconFile%, 1, 1
@@ -377,9 +382,10 @@ CopyFilePath() {
 
 Decode(code) {
     StringReplace, code, code, ``, /, All
-    IniRead, kanji, %A_LineFile%\..\wmacs-ttt.ini, main, %code%,
+    global TTTIniFile
+    IniRead, kanji, %TTTIniFile%, main, %code%,
     If (kanji == "ERROR") {
-        IniRead, kanji, %A_LineFile%\..\wmacs-ttt.ini, user, %code%,
+        IniRead, kanji, %TTTIniFile%, user, %code%,
     }
     If (kanji == "ERROR") {
         kanji := ""
@@ -453,6 +459,11 @@ DecodeSubstr(src) {
 }
 
 DoTTT(backward = "+{Home}") {
+    global TTTIniFile
+    If (not FileExist(TTTIniFile)) {
+        Return
+    }
+    ;;
     OnClipboardChange("ClipChanged", 0)
     ;;
     clipboard_backup = %ClipboardAll%
