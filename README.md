@@ -24,8 +24,8 @@ It aims to reduce difficulty for an Emacs/US keyboard user to work with Windows/
 
 ## Installation
 
-```
-$ git clone https://github.com/yoyuse/wmacs-jis
+```shellsession
+git clone https://github.com/yoyuse/wmacs-jis
 ```
 
 ## Usage
@@ -34,7 +34,7 @@ Open `wmacs-jis\wmacs.ahk` with `AutoHotkey.exe`.
 
 Or, copy `wmacs-jis` folder to the location where `AutoHotkey.ahk` exists, add following line to [Auto-execute section](http://www.autohotkey.com/docs/Scripts.htm#auto) of `AutoHotkey.ahk`:
 
-```
+```autohotkey
 #Include %A_LineFile%\..\wmacs-jis\wmacs.ahk
 ```
 
@@ -72,7 +72,7 @@ and run `AutoHotkey.exe`.
 
 ### Windows Fragment
 
-| Key | Meaning | Notes |
+| Key | Definition | Notes |
 |----|----|----|
 | `無変換-c` | `Ctrl+c` | Copy |
 | `無変換-s` | `Ctrl+s` | Save |
@@ -83,7 +83,7 @@ and run `AutoHotkey.exe`.
 
 ### Emacs Fragment
 
-| Key | Meaning | Notes |
+| Key | Definition | Notes |
 |----|----|----|
 | `無変換-a`/`e` | `Home`/`End` | Beginning/End of line |
 | `無変換-b`/`f`/`n`/`p` | `←`/`→`/`↓`/`↑` | Left/Right/Down/Up |
@@ -94,7 +94,7 @@ and run `AutoHotkey.exe`.
 
 ### Others
 
-| Key | Meaning | Notes |
+| Key | Definition | Notes |
 |----|----|----|
 | `無変換-1`～`9`/`0`/`-`/`=` | `F1`～`F9`/`F10`/`F11`/`F12` | Function Keys |
 | `無変換-[`/`]` | `PdUp`/`PgDn` | Previous/Next Page |
